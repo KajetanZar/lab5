@@ -28,10 +28,12 @@ class Manager:
     def  get_apartment_costs(self, apartment_key, year=None, month=None) -> float:
         if apartment_key not in self.apartments:
             return None
+        
+       
         cala_kwota =sum(
             bill.amount_pln for bill in self.bills if bill.apartment == apartment_key and
-            bill.settlement_year == year and
-            bill.settlement_month == month
+            (bill.settlement_year == year or year == None) and
+            (bill.settlement_month == month or month ==None)
 
         )
 

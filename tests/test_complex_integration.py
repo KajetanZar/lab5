@@ -62,3 +62,4 @@ def test_sumowanie_rachunkow():
     assert manager.get_apartment_costs('apart-polanka', 2024, 3) == 0.0
     assert manager.get_apartment_costs('apart-polanka', 2025, 1) == 760.00+150.00
     assert manager.get_apartment_costs('apart-polanka67', 2024, 5) == None 
+    assert manager.get_apartment_costs('apart-polanka', 2025, 13) == 0.0 
