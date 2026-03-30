@@ -1,4 +1,4 @@
-from src.models import Apartment, Bill, Parameters, Tenant, Transfer
+from src.models import Apartment, Bill, Parameters, Tenant, Transfer, ApartmentSettlement, TenantSettlement
 
 
 class Manager:
@@ -38,3 +38,50 @@ class Manager:
         )
 
         return float(cala_kwota)
+
+    def rozliczenie_dla_mieszkan(self, apartment_key, year, month):
+        if apartment_key not in self.apartments:
+            return None
+
+        total_bills_pln = self.get_apartment_costs(apartment_key, year, month)
+        total_transfers_pln = 0.0
+        balance_pln = total_transfers_pln - total_bills_pln
+
+        return ApartmentSettlement(
+            apartment=apartment_key,
+            month=month,
+            year=year,
+            total_rent_pln=total_transfers_pln,
+            total_bills_pln=total_bills_pln,
+            total_due_pln=balance_pln,
+        )
+    
+    def rozliczenia_dla_mieszkancow(self, apartment_settlement: ApartmentSettlement):
+        tenants_in_apartment = [
+            (tenant_key, tenant)
+            for tenant_key, tenant in self.tenants.items()
+            if tenant.apartment == apartment_settlement.apartment
+        ]
+
+        if len(tenants_in_apartment) == 0:
+            return []
+
+        bills_share_pln = apartment_settlement.total_bills_pln / len(tenants_in_apartment)
+        lista1 = []
+
+        for tenant_key, _tenant in tenants_in_apartment:
+            rent_pln = 0.0
+            total_due_pln = rent_pln + bills_share_pln
+            balance_pln = -total_due_pln
+            lista1.append(TenantSettlement(
+                tenant=tenant_key,
+                apartment_settlement=apartment_settlement.apartment,
+                month=apartment_settlement.month,
+                year=apartment_settlement.year,
+                rent_pln=rent_pln,
+                bills_pln=bills_share_pln,
+                total_due_pln=total_due_pln,
+                balance_pln=balance_pln,
+            ))
+
+        return lista1
